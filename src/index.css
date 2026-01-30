@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Al Wael Real Estate & Construction - Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 220 20% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 15%;
+
+    /* Gold/Amber accent - luxury real estate feel */
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Deep Navy - professional construction */
+    --secondary: 220 45% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 38 85% 95%;
+    --accent-foreground: 38 92% 35%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning orange */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Info blue */
+    --info: 210 100% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 220 45% 15%;
+    --sidebar-foreground: 220 15% 90%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 45% 22%;
+    --sidebar-accent-foreground: 220 15% 95%;
+    --sidebar-border: 220 40% 25%;
+    --sidebar-ring: 38 92% 50%;
+
+    --chart-1: 38 92% 50%;
+    --chart-2: 220 45% 40%;
+    --chart-3: 142 76% 36%;
+    --chart-4: 0 84% 60%;
+    --chart-5: 210 100% 50%;
+  }
+
+  .dark {
+    --background: 220 45% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 45% 12%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 220 45% 12%;
+    --popover-foreground: 220 15% 95%;
+
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 45% 25%;
+    --secondary-foreground: 220 15% 95%;
+
+    --muted: 220 40% 18%;
+    --muted-foreground: 220 15% 65%;
+
+    --accent: 38 85% 15%;
+    --accent-foreground: 38 92% 70%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 40% 20%;
+    --input: 220 40% 20%;
+    --ring: 38 92% 50%;
+
+    --sidebar-background: 220 50% 6%;
+    --sidebar-foreground: 220 15% 90%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 45% 15%;
+    --sidebar-accent-foreground: 220 15% 95%;
+    --sidebar-border: 220 40% 15%;
+    --sidebar-ring: 38 92% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    direction: rtl;
+  }
+
+  body {
+    @apply bg-background text-foreground font-arabic antialiased;
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .font-arabic {
+    font-family: 'Tajawal', sans-serif;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-l from-primary to-amber-600 bg-clip-text text-transparent;
+  }
+
+  .card-shadow {
+    box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.1);
+  }
+
+  .glass-effect {
+    @apply bg-card/80 backdrop-blur-sm;
+  }
+}
