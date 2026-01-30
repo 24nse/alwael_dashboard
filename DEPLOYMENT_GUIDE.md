@@ -1,53 +1,75 @@
-# دليل النشر التلقائي على GitHub Pages
+# 🚀 دليل النشر التلقائي الكامل على GitHub Pages
 
-## ✅ ما تم إعداده
+## ✅ الملفات المُعدّة
 
-تم إعداد جميع الملفات المطلوبة للنشر التلقائي:
+جميع الملفات التقنية جاهزة:
 
-1. ✅ `.github/workflows/deploy.yml` - ملف GitHub Actions
-2. ✅ `vite.config.ts` - تم إضافة base path
-3. ✅ `public/.nojekyll` - لتعطيل Jekyll
-4. ✅ `README.md` - تم التحديث مع التعليمات
+1. ✅ `.github/workflows/deploy.yml` - سير عمل GitHub Actions
+2. ✅ `vite.config.ts` - مسار القاعدة للنشر
+3. ✅ `public/.nojekyll` - تعطيل Jekyll
+4. ✅ متغيرات البيئة مُضافة للسير
+
+---
 
 ## 📋 خطوات التفعيل (مرة واحدة فقط)
 
-### 1. رفع التغييرات إلى GitHub
+### الخطوة 1️⃣: إضافة أسرار GitHub (Secrets)
 
-إذا لم يتم رفع التغييرات بعد، قم بتنفيذ الأوامر التالية:
-
-\`\`\`bash
-# التأكد من حفظ جميع التغييرات
-git add .
-git commit -m "feat: إضافة النشر التلقائي على GitHub Pages"
-git push origin main
-\`\`\`
-
-### 2. تفعيل GitHub Pages
+هذه الخطوة **ضرورية جداً** لعمل Supabase في الموقع المنشور!
 
 1. اذهب إلى مستودع GitHub: https://github.com/24nse/alwael_dashboard
 2. اضغط على **Settings** (الإعدادات)
-3. في القائمة الجانبية، اختر **Pages**
-4. في قسم **Source** (المصدر):
+3. في القائمة الجانبية، اختر **Secrets and variables** → **Actions**
+4. اضغط على **New repository secret**
+5. أضف السرّين التاليين:
+
+   **السر الأول:**
+   - Name: `VITE_SUPABASE_URL`
+   - Secret: `https://ivwquhueduywrwotatxd.supabase.co`
+   - اضغط **Add secret**
+
+   **السر الثاني:**
+   - Name: `VITE_SUPABASE_ANON_KEY`
+   - Secret: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2d3F1aHVlZHV5d3J3b3RhdHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3MTUyMjAsImV4cCI6MjA4NTI5MTIyMH0.9TyBVpUHUu9TGnFG6M16OAU6Q_E6KtYsb2XChIG9JD0`
+   - اضغط **Add secret**
+
+### الخطوة 2️⃣: رفع التغييرات إلى GitHub
+
+قم بتنفيذ الأوامر التالية لرفع التحديثات:
+
+```bash
+git add .
+git commit -m "feat: تحديث سير النشر التلقائي مع متغيرات البيئة"
+git push origin main
+```
+
+### الخطوة 3️⃣: تفعيل GitHub Pages
+
+1. اذهب إلى **Settings** في المستودع
+2. في القائمة الجانبية، اختر **Pages**
+3. في قسم **Source** (المصدر):
    - اختر **GitHub Actions**
-5. احفظ التغييرات
+4. احفظ التغييرات
 
-### 3. انتظر اكتمال النشر
+### الخطوة 4️⃣: انتظر اكتمال النشر
 
-- بعد الخطوة السابقة، سيبدأ GitHub Actions تلقائياً في بناء ونشر الموقع
-- يمكنك متابعة التقدم من تبويب **Actions** في المستودع
+- بعد الخطوة السابقة، سيبدأ GitHub Actions تلقائياً
+- اذهب إلى تبويب **Actions** لمتابعة التقدم
 - عادة يستغرق 2-5 دقائق
 
-### 4. الوصول إلى الموقع
+### الخطوة 5️⃣: الوصول إلى الموقع
 
 بعد اكتمال النشر، سيكون الموقع متاحاً على:
 
 **🌐 https://24nse.github.io/alwael_dashboard/**
 
-## 🔄 النشر التلقائي
+---
 
-من الآن فصاعداً، أي تغيير تقوم به وترفعه إلى branch `main` سيتم نشره تلقائياً!
+## 🔄 النشر التلقائي (بدون تدخل يدوي)
 
-\`\`\`bash
+من الآن فصاعداً، **أي تغيير** تقوم به وترفعه إلى `main` سيتم نشره **تلقائياً**!
+
+```bash
 # مثال: تعديل ملف
 # ... قم بالتعديلات ...
 
@@ -56,45 +78,78 @@ git add .
 git commit -m "وصف التغييرات"
 git push origin main
 
-# ✅ سيتم النشر تلقائياً!
-\`\`\`
+# ✅ سيتم النشر تلقائياً في 2-5 دقائق!
+```
+
+**لا حاجة لأي تدخل يدوي!** GitHub Actions سيقوم بـ:
+1. ✅ تثبيت المكتبات
+2. ✅ بناء المشروع
+3. ✅ نشره على GitHub Pages
+4. ✅ تحديث الموقع المباشر
+
+---
 
 ## 🛠️ استكشاف الأخطاء
 
-### إذا فشل النشر:
+### المشكلة: فشل النشر
 
-1. اذهب إلى تبويب **Actions** في GitHub
-2. اضغط على آخر workflow run
+**الحل:**
+1. اذهب إلى تبويب **Actions**: https://github.com/24nse/alwael_dashboard/actions
+2. اضغط على آخر workflow run (الأحمر ❌)
 3. تحقق من الأخطاء في السجلات
+4. الأخطاء الشائعة:
+   - أخطاء في الكود → أصلح الكود وارفع مرة أخرى
+   - مكتبات ناقصة → تأكد من `package.json`
 
-### المشاكل الشائعة:
+### المشكلة: الموقع لا يعمل (404)
 
-#### الموقع لا يعمل (404)
-- تأكد من تفعيل GitHub Pages من الإعدادات
+**الحل:**
+- تأكد من تفعيل GitHub Pages من Settings → Pages
 - تأكد من اختيار **GitHub Actions** كمصدر
+- انتظر 5-10 دقائق بعد أول نشر
 
-#### الموقع يظهر بدون تنسيق
+### المشكلة: الموقع يظهر بدون تنسيق
+
+**الحل:**
 - تأكد من أن `base` في `vite.config.ts` يطابق اسم المستودع
 - يجب أن يكون: `base: '/alwael_dashboard/'`
 
-#### فشل البناء
-- تحقق من أن جميع المكتبات مثبتة بشكل صحيح
-- تأكد من عدم وجود أخطاء في الكود
+### المشكلة: Supabase لا يعمل في الموقع المنشور
+
+**الحل:**
+- تأكد من إضافة الأسرار في GitHub (الخطوة 1️⃣)
+- تحقق من أن أسماء الأسرار صحيحة:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+- أعد النشر بعد إضافة الأسرار
+
+---
 
 ## 📊 مراقبة النشر
 
 يمكنك مراقبة حالة النشر من:
 
 1. **تبويب Actions**: https://github.com/24nse/alwael_dashboard/actions
+   - ✅ أخضر = نجح النشر
+   - ❌ أحمر = فشل النشر
+   - 🟡 أصفر = جاري النشر
+
 2. **تبويب Deployments**: https://github.com/24nse/alwael_dashboard/deployments
+   - يعرض تاريخ جميع عمليات النشر
 
-## 🎯 الميزات
+---
 
-- ✅ نشر تلقائي عند كل push
+## 🎯 الميزات المُفعّلة
+
+- ✅ نشر تلقائي عند كل `git push`
 - ✅ بناء سريع باستخدام Vite
 - ✅ دعم TypeScript و React
+- ✅ دعم Supabase في الإنتاج
 - ✅ تحسين للإنتاج تلقائياً
 - ✅ دعم الروابط المباشرة (SPA)
+- ✅ تحديث فوري للموقع المباشر
+
+---
 
 ## 📝 ملاحظات مهمة
 
@@ -102,13 +157,37 @@ git push origin main
 2. **الوقت**: عادة يستغرق النشر 2-5 دقائق
 3. **التكلفة**: GitHub Pages مجاني تماماً للمستودعات العامة
 4. **الحد الأقصى**: 1 GB للموقع، 100 GB نطاق ترددي شهرياً
+5. **الأمان**: الأسرار (Secrets) مشفرة ولا تظهر في السجلات
+
+---
 
 ## 🔗 روابط مفيدة
 
 - [توثيق GitHub Pages](https://docs.github.com/en/pages)
 - [توثيق GitHub Actions](https://docs.github.com/en/actions)
+- [توثيق GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
 - [توثيق Vite](https://vitejs.dev/guide/static-deploy.html#github-pages)
 
 ---
 
-**آخر تحديث**: 2026-01-28
+## 🎉 ملخص سريع
+
+**للبدء:**
+1. أضف الأسرار في GitHub Settings → Secrets
+2. ارفع التغييرات: `git push origin main`
+3. فعّل GitHub Pages من Settings → Pages → GitHub Actions
+4. انتظر 5 دقائق
+5. افتح: https://24nse.github.io/alwael_dashboard/
+
+**للتحديثات المستقبلية:**
+```bash
+git add .
+git commit -m "رسالة التحديث"
+git push origin main
+# ✅ تم! سيُنشر تلقائياً
+```
+
+---
+
+**آخر تحديث**: 2026-01-30
+**الحالة**: ✅ جاهز للنشر التلقائي الكامل
