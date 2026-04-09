@@ -5,9 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,12 +22,24 @@ export default function AdminLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate login - replace with actual authentication
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      await signIn(formData.email, formData.password);
+      toast({
+        title: 'تم تسجيل الدخول بنجاح',
+        description: 'مرحباً بك في لوحة التحكم',
+      });
       navigate('/admin');
-    }, 1000);
+    } catch (error: any) {
+      console.error('Login error:', error);
+      toast({
+        title: 'خطأ في تسجيل الدخول',
+        description: error.message || 'تأكد من صحة البريد الإلكتروني وكلمة المرور',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,3 +134,4 @@ export default function AdminLogin() {
     </div>
   );
 }
+

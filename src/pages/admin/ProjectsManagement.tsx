@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { PageHeader, StatusBadge } from '@/components/admin/shared/AdminComponents';
 import { useProjects } from '@/hooks/useProjects';
 import { Project, ProjectStatus } from '@/types/admin';
@@ -24,14 +24,178 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Search, Pencil, Trash2, MapPin, Calendar, Ruler, Star, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  MapPin,
+  Calendar,
+  Ruler,
+  Star,
+  Loader2,
+  Upload,
+  X,
+  ImageIcon,
+  Images,
+} from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
+// ─── Image Upload Helper ──────────────────────────────────────────────────────
+async function uploadImageToStorage(file: File, projectTitle: string): Promise<string> {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+  const filePath = `projects/${projectTitle.replace(/\s+/g, '-')}/${fileName}`;
+
+  const { error } = await supabase.storage
+    .from('project-images')
+    .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from('project-images').getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
+// ─── Image Upload Zone Component ─────────────────────────────────────────────
+interface ImageUploadZoneProps {
+  images: string[];
+  onImagesChange: (images: string[]) => void;
+  projectTitle: string;
+}
+
+function ImageUploadZone({ images, onImagesChange, projectTitle }: ImageUploadZoneProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const validFiles = Array.from(files).filter((f) =>
+      f.type.startsWith('image/')
+    );
+
+    if (validFiles.length === 0) return;
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    const uploaded: string[] = [];
+    for (let i = 0; i < validFiles.length; i++) {
+      try {
+        const title = projectTitle || 'project';
+        const url = await uploadImageToStorage(validFiles[i], title);
+        uploaded.push(url);
+      } catch (err) {
+        console.error('Upload error:', err);
+      }
+      setUploadProgress(Math.round(((i + 1) / validFiles.length) * 100));
+    }
+
+    onImagesChange([...images, ...uploaded]);
+    setUploading(false);
+    setUploadProgress(0);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFiles(e.dataTransfer.files);
+  };
+
+  const removeImage = (index: number) => {
+    const updated = images.filter((_, i) => i !== index);
+    onImagesChange(updated);
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Drop zone */}
+      <div
+        className={`relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200
+          ${isDragging ? 'border-primary bg-primary/5 scale-[1.01]' : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/40'}`}
+        onClick={() => fileInputRef.current?.click()}
+        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+        {uploading ? (
+          <div className="space-y-3">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+            <p className="text-sm text-muted-foreground">جاري رفع الصور...</p>
+            <Progress value={uploadProgress} className="h-1.5" />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Upload className="w-6 h-6 text-primary" />
+            </div>
+            <p className="text-sm font-medium">اسحب الصور هنا أو اضغط للاختيار</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, WebP — يمكن رفع أكثر من صورة</p>
+          </div>
+        )}
+      </div>
+
+      {/* Image preview grid */}
+      {images.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          {images.map((url, index) => (
+            <div key={index} className="relative group aspect-video rounded-lg overflow-hidden border bg-muted">
+              <img
+                src={url}
+                alt={`صورة ${index + 1}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder.svg';
+                }}
+              />
+              {index === 0 && (
+                <span className="absolute bottom-1 right-1 text-[10px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded font-medium">
+                  رئيسية
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => removeImage(index)}
+                className="absolute top-1 left-1 w-6 h-6 rounded-full bg-destructive text-white flex items-center justify-center
+                           opacity-0 group-hover:opacity-100 transition-opacity shadow"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {images.length === 0 && !uploading && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <ImageIcon className="w-4 h-4" />
+          <span>لم يتم اختيار أي صور بعد</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 export default function ProjectsManagement() {
   const { projects, loading, error, createProject, updateProject, deleteProject: deleteProjectHook } = useProjects();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<Project>>({
     title: '',
     description: '',
@@ -74,7 +238,7 @@ export default function ProjectsManagement() {
       status: 'planning',
       featured: false,
       features: [],
-      images: ['/placeholder.svg'],
+      images: [],
     });
     setIsDialogOpen(true);
   };
@@ -86,41 +250,37 @@ export default function ProjectsManagement() {
   };
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
       if (editingProject) {
         await updateProject(editingProject.id, formData);
-        toast({
-          title: 'تم التحديث',
-          description: 'تم تحديث المشروع بنجاح',
-        });
+        toast({ title: 'تم التحديث', description: 'تم تحديث المشروع بنجاح' });
       } else {
         await createProject(formData as Omit<Project, 'id' | 'createdAt'>);
-        toast({
-          title: 'تم الإضافة',
-          description: 'تم إضافة المشروع بنجاح',
-        });
+        toast({ title: 'تم الإضافة', description: 'تم إضافة المشروع بنجاح' });
       }
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Save project error:', error);
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء حفظ المشروع',
+        description: error.message || 'حدث خطأ أثناء حفظ المشروع',
         variant: 'destructive',
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDeleteProject = async (id: string) => {
     try {
       await deleteProjectHook(id);
-      toast({
-        title: 'تم الحذف',
-        description: 'تم حذف المشروع بنجاح',
-      });
-    } catch (error) {
+      toast({ title: 'تم الحذف', description: 'تم حذف المشروع بنجاح' });
+    } catch (error: any) {
+      console.error('Delete project error:', error);
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء حذف المشروع',
+        description: error.message || 'حدث خطأ أثناء حذف المشروع',
         variant: 'destructive',
       });
     }
@@ -177,11 +337,21 @@ export default function ProjectsManagement() {
           {filteredProjects.map((project) => (
             <Card key={project.id} className="overflow-hidden">
               <div className="aspect-video bg-muted relative">
-                <img
-                  src={project.images[0]}
-                  alt={project.title}
-                  className="w-full h-full object-cover"
-                />
+                {project.images && project.images.length > 0 ? (
+                  <img
+                    src={project.images[0]}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <ImageIcon className="w-10 h-10 opacity-40" />
+                    <span className="text-xs">لا توجد صور</span>
+                  </div>
+                )}
                 {project.featured && (
                   <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded-md text-xs flex items-center gap-1">
                     <Star className="w-3 h-3" />
@@ -191,6 +361,12 @@ export default function ProjectsManagement() {
                 <div className="absolute top-2 right-2">
                   {getStatusBadge(project.status)}
                 </div>
+                {project.images && project.images.length > 1 && (
+                  <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Images className="w-3 h-3" />
+                    {project.images.length}
+                  </div>
+                )}
               </div>
               <CardContent className="p-4">
                 <h3 className="font-bold text-lg mb-2">{project.title}</h3>
@@ -249,7 +425,9 @@ export default function ProjectsManagement() {
               {editingProject ? 'تعديل بيانات المشروع' : 'أدخل بيانات المشروع الجديد'}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+
+          <div className="space-y-5">
+            {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
                 <Label>اسم المشروع</Label>
@@ -337,12 +515,27 @@ export default function ProjectsManagement() {
                 />
               </div>
             </div>
+
+            {/* Image Upload Section */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Images className="w-4 h-4" />
+                صور المشروع
+              </Label>
+              <ImageUploadZone
+                images={formData.images || []}
+                onImagesChange={(imgs) => setFormData({ ...formData, images: imgs })}
+                projectTitle={formData.title || 'project'}
+              />
+            </div>
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
               إلغاء
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} disabled={isSaving}>
+              {isSaving && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
               {editingProject ? 'حفظ التعديلات' : 'إضافة المشروع'}
             </Button>
           </DialogFooter>

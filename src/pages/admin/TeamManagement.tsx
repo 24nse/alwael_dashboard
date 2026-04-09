@@ -89,10 +89,11 @@ export default function TeamManagement() {
         });
       }
       setIsDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Save team member error:', error);
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء حفظ البيانات',
+        description: error.message || 'حدث خطأ أثناء حفظ البيانات',
         variant: 'destructive',
       });
     }
@@ -105,10 +106,11 @@ export default function TeamManagement() {
         title: 'تم الحذف',
         description: 'تم حذف العضو بنجاح',
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Delete team member error:', error);
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء حذف العضو',
+        description: error.message || 'حدث خطأ أثناء حذف العضو',
         variant: 'destructive',
       });
     }
@@ -117,10 +119,11 @@ export default function TeamManagement() {
   const handleToggleActive = async (id: string) => {
     try {
       await toggleActive(id);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Toggle active error:', error);
       toast({
         title: 'خطأ',
-        description: 'حدث خطأ أثناء تحديث الحالة',
+        description: error.message || 'حدث خطأ أثناء تحديث الحالة',
         variant: 'destructive',
       });
     }
